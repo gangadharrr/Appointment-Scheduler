@@ -1,0 +1,31 @@
+﻿@model Appointment_Scheduler.Models.UserLoginDetails
+
+@{
+    ViewData["Title"] = "Login";
+}
+<div align="center">
+    <h1>log in</h1>
+    <hr />
+    <div class="col-md-3">
+        <form asp-action="Login" >
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <br />
+                <input asp-for="Email" placeholder="User Id" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <br />
+                <input asp-for="Password_U" placeholder="Password" type="password" class="form-control" required/>
+                <span asp-validation-for="Password_U" class="text-danger" ></span>
+            </div>
+            <div class="form-group"><br />
+                <a asp-action="Login">Create New Account?</a><br /><br />
+                <i class="far fa-eye" id="togglePassword"></i>
+                <input type="submit" value="Login" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
