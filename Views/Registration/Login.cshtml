@@ -8,6 +8,7 @@
     <hr />
     <div class="col-md-3">
         <form asp-action="Login" >
+     
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
@@ -19,11 +20,21 @@
                 <br />
                 <input asp-for="Password_U" placeholder="Password" type="password" class="form-control" required/>
                 <span asp-validation-for="Password_U" class="text-danger" ></span>
+                @if ((bool)ViewData["LoginStatus"])
+                {
+                    <div align="left">
+                        <span class="text-danger" style="text-align:left">Wrong Password</span>
+                    </div>
+                }
+                    
+
             </div>
             <div class="form-group"><br />
-                <a asp-action="Login">Create New Account?</a><br /><br />
+                <a asp-action="ForgotPassword" >Forgot Password?</a><br />
+                <a asp-action="SignUp">Create New Account?</a><br /><br />
                 <i class="far fa-eye" id="togglePassword"></i>
                 <input type="submit" value="Login" class="btn btn-primary" />
+                
             </div>
         </form>
     </div>

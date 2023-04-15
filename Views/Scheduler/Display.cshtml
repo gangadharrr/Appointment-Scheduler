@@ -1,0 +1,129 @@
+﻿@model IEnumerable<Appointment_Scheduler.Models.Appointments>
+
+@{
+    ViewData["Title"] = "Appointments";
+}
+
+
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* Float four columns side by side */
+    .column {
+        float: left;
+        width: 25%;
+        padding: 0 10px;
+    }
+
+    /* Remove extra left and right margins, due to padding */
+    .row {
+        margin: 0 -5px;
+    }
+
+        /* Clear floats after the columns */
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+    /* Responsive columns */
+    @@media screen and (max-width: 600px) {
+        .column {
+            width: 100%;
+            display: block;
+            margin-bottom: 20px;
+        }
+    }
+
+    /* Style the counter cards */
+    .card {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        padding: 16px;
+        text-align: left;
+        background-color: #f1f1f1;
+    }
+
+    table {
+        table-layout: fixed;
+        width: 1000px;
+    }
+
+    .tad1 {
+        width: 200px;
+    }
+
+    .tad2 {
+        width: 150px;
+    }
+
+    .tad3 {
+        width: 150px;
+    }
+</style>
+<div align="right">
+    <a href="/Home/Index" style="text-anchor:end;background-color:red;border-color:red" class="btn btn-primary">Log out</a>
+</div><br />
+<table style="table-layout: fixed;width: 1100px;">
+    <tr>
+        <td>
+            <h1>Appointments</h1>
+        </td>
+        <td  align="right">
+            <a href="/Scheduler/Create" style="text-anchor:end;" class="btn btn-primary">+ Create Appointment</a>
+        </td>
+    </tr>
+</table>
+<hr />
+
+
+
+
+
+@foreach( Appointments appointment in Model)
+{
+    <div class="row">
+        <div class="card">
+            <table style="">
+                
+                <tr>
+                    <td class="tad1" >
+                    <h4>@appointment.MeetingTitle.Trim()</h4>
+                    <p>@appointment.MeetingDescription</p>
+                    </td>
+                    <td class="tad2">
+                        <p>
+                            <b>@appointment.UserName</b><br/>
+                            @appointment.Email<br/>
+                            @appointment.PhoneNumber<br/>
+                            @appointment.CompanyName<br/>
+                            @appointment.Designation
+                        </p>
+                    </td>
+                    <td class="tad3">
+                        <p>
+                            @appointment.StartTime.ToString("dddd, dd MMMM yyyy HH:mm tt")<br />
+                            @appointment.EndTime.ToString("dddd, dd MMMM yyyy HH:mm tt")
+                        </p>
+                      
+                        <a href="@appointment.MeetingUrl" target="_blank" class="btn btn-primary">Join Meeting</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <br />
+}
+
+
+
+
+

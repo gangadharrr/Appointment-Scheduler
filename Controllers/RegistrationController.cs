@@ -6,6 +6,8 @@ using NuGet.Common;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
+using System.Net;
+using System.Net.Mail;
 
 
 namespace Appointment_Scheduler.Controllers
@@ -15,6 +17,7 @@ namespace Appointment_Scheduler.Controllers
         IConfiguration Configuration;
         SqlConnection sqlConnection;
         SqlCommand sqlCommand;
+        private static int VerificationCode;
         public RegistrationController(IConfiguration configuration)
         {
             Configuration= configuration;
@@ -24,6 +27,7 @@ namespace Appointment_Scheduler.Controllers
         // GET: RegistrationController/Login
         public ActionResult Login()
         {
+            ViewData["LoginStatus"] = false;
             return View(new UserLoginDetails());
         }
 
@@ -32,7 +36,7 @@ namespace Appointment_Scheduler.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(UserLoginDetails userLoginDetails)
         {
-            
+            ViewData["LoginStatus"] = true;
             try
             {
                 Console.WriteLine(userLoginDetails.Email+" "+userLoginDetails.Password_U);
@@ -43,11 +47,9 @@ namespace Appointment_Scheduler.Controllers
                     {
                         using (var md5Hash = MD5.Create())
                         {
-                            
-                            var hashBytes = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(userLoginDetails.Password_U));
 
          
-                            var hash = BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+                            var InputPasswordHash = BitConverter.ToString(md5Hash.ComputeHash(Encoding.UTF8.GetBytes(userLoginDetails.Password_U))).Replace("-", string.Empty);
 
 
                             Console.WriteLine("inside post sql");
@@ -57,13 +59,18 @@ namespace Appointment_Scheduler.Controllers
                             SqlDataReader reader = sqlCommand.ExecuteReader();
                             while (reader.Read())
                             {
-                                var res=BitConverter.ToString((byte[])reader["PASSWORD_U"]).Replace("-", string.Empty);
-                                Console.WriteLine(hash == res);
+                                var DatabasePasswordHash=BitConverter.ToString((byte[])reader["PASSWORD_U"]).Replace("-", string.Empty);
+                                if (InputPasswordHash == DatabasePasswordHash)
+                                {
+                                    ViewData["LoginStatus"] = true;
+                                    return RedirectToAction("Display", "Scheduler",new { Email = userLoginDetails.Email });
+                                }
                             }
                         }
                     }
                 }
-                return RedirectToAction(nameof(Login));
+                
+                return View();
             }
             catch
             {
@@ -82,7 +89,6 @@ namespace Appointment_Scheduler.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SignUp(UserDetails userDetails)
         {
-            Console.WriteLine("in post");
            
             try
             {
@@ -120,39 +126,55 @@ namespace Appointment_Scheduler.Controllers
 
        
         // GET: RegistrationController/Edit/5
-        public ActionResult Edit(int id)
+        public ActionResult ForgotPassword()
         {
+
             return View();
         }
 
         // POST: RegistrationController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult ForgotPassword( IFormCollection collection)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                Random rnd = new Random();
+                VerificationCode = rnd.Next(100000,999999);
+                //SendEmail(VerificationCode, collection["Email"].ToString());
+                return RedirectToAction("SecurityVerification", "Registration",new {Email= collection["Email"].ToString() });
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return View();
             }
-        }
-
-        // GET: RegistrationController/Delete/5
-        public ActionResult Delete(int id)
+        } 
+        // GET: RegistrationController/Edit/5
+        public ActionResult SecurityVerification(string Email)
         {
-            return View();
+            if (VerificationCode != 0)
+            {
+                Console.WriteLine(Email + " " + VerificationCode);
+                VerificationCode = 0;
+
+                return View();
+            }
+            else{
+                
+                return View();
+
+            }
         }
 
-        // POST: RegistrationController/Delete/5
+        // POST: RegistrationController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult SecurityVerification( IFormCollection collection)
         {
             try
             {
+                return View();
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -160,5 +182,28 @@ namespace Appointment_Scheduler.Controllers
                 return View();
             }
         }
+
+        public static void SendEmail(int pass,string Email)
+        {
+            try
+            {
+                MailMessage message = new MailMessage();
+                SmtpClient smtp = new SmtpClient();
+                message.From = new MailAddress("tagbotroadster@gmail.com");
+                message.To.Add(new MailAddress(Email));
+                message.Subject = "Password Recovery";
+
+                message.Body = $"Your Password Verfication code is {pass}";
+                smtp.Port = 587;
+                smtp.Host = "smtp.gmail.com"; //for gmail host
+                smtp.EnableSsl = true;
+                smtp.UseDefaultCredentials = false;
+                smtp.Credentials = new NetworkCredential("tagbotroadster", "gpicefmynomhygmh");
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.Send(message);
+            }
+            catch (Exception) { }
+        }
+
     }
 }
