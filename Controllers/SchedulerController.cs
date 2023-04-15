@@ -125,8 +125,6 @@ namespace Appointment_Scheduler.Controllers
                     sqlConnection.Open();
                     using (sqlCommand)
                     {
-                        Console.WriteLine("Entered Query");
-
                         sqlCommand.CommandText = "INSERT_APPOINTMENT_DETAILS";
                         sqlCommand.CommandType = CommandType.StoredProcedure;
                         sqlCommand.Parameters.Add(new SqlParameter("@Email", collection["Email"].ToString()));
@@ -137,7 +135,6 @@ namespace Appointment_Scheduler.Controllers
                         sqlCommand.Parameters.Add(new SqlParameter("@EndTime", collection["MeetingDate"]).ToString() + " " + collection["MeetingEndTime"].ToString());
                         sqlCommand.Parameters.Add(new SqlParameter("@MeetingUrl", collection["MeetingUrl"].ToString()));
                         sqlCommand.ExecuteNonQuery();
-                        Console.WriteLine("Finished Query");
                     }
                 }
                 return RedirectToAction("Display", "Scheduler", new { Email = userDetails.Email }); 

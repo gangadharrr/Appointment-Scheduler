@@ -17,7 +17,7 @@ namespace Appointment_Scheduler.Controllers
         IConfiguration Configuration;
         SqlConnection sqlConnection;
         SqlCommand sqlCommand;
-        private static int VerificationCode;
+        private static int VerificationCode=0   ;
         public RegistrationController(IConfiguration configuration)
         {
             Configuration= configuration;
@@ -141,7 +141,7 @@ namespace Appointment_Scheduler.Controllers
             {
                 Random rnd = new Random();
                 VerificationCode = rnd.Next(100000,999999);
-                //SendEmail(VerificationCode, collection["Email"].ToString());
+                SendEmail(VerificationCode, collection["Email"].ToString());
                 return RedirectToAction("SecurityVerification", "Registration",new {Email= collection["Email"].ToString() });
             }
             catch(Exception ex)
@@ -150,19 +150,24 @@ namespace Appointment_Scheduler.Controllers
                 return View();
             }
         } 
+        public async void changeCode()
+        {
+            Console.WriteLine("Before: "+VerificationCode);
+            await Task.Delay(30000);
+            VerificationCode = 0;
+            Console.WriteLine("After: " + VerificationCode);
+        }
         // GET: RegistrationController/Edit/5
         public ActionResult SecurityVerification(string Email)
         {
             if (VerificationCode != 0)
             {
-                Console.WriteLine(Email + " " + VerificationCode);
-                VerificationCode = 0;
-
+                changeCode();
                 return View();
             }
             else{
                 
-                return View();
+                return RedirectToAction(nameof(ForgotPassword));
 
             }
         }
@@ -170,19 +175,40 @@ namespace Appointment_Scheduler.Controllers
         // POST: RegistrationController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SecurityVerification( IFormCollection collection)
+        public ActionResult SecurityVerification(IFormCollection collection)
         {
             try
             {
-                return View();
-                return RedirectToAction(nameof(Index));
+                if (Convert.ToInt32(collection["Code"]) == VerificationCode)
+                {
+                    VerificationCode = 0;
+                    return RedirectToAction(nameof(UpdatePassword));
+                }
+                else
+                {
+                    return RedirectToAction(nameof(SecurityVerification));
+                }
             }
             catch
             {
-                return View();
+                return RedirectToAction(nameof(SecurityVerification));
             }
         }
+        public ActionResult UpdatePassword()
+        {
 
+            return View();
+        }
+
+        // POST: RegistrationController/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdatePassword(IFormCollection collection)
+        {
+           
+                return View();
+            
+        }
         public static void SendEmail(int pass,string Email)
         {
             try

@@ -1,6 +1,13 @@
 ﻿@{
     ViewData["Title"] = "Verification";
 }
+<style>
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+    }
+</style>
 <div align="center">
     <h1>Security Verification</h1>
     <hr />
@@ -9,15 +16,15 @@
 
             <div class="form-control">
                 <br />
-                <input name="Code" placeholder="Enter Security Code" class="form-control" required/>
+                <input name="Code"  type="number" placeholder="Enter Security Code" class="form-control" required />
                 <br />
             </div>
-
-
             <div class="form-group">
+                <a asp-action="SendEmail">Resend code</a><br/>
                 <br />
                 <input type="submit" value="Verify" class="btn btn-primary" />
             </div>
         </form>
+ 
     </div>
 </div>
